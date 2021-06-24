@@ -1,15 +1,7 @@
 const chalk = require("chalk");
-const log = console.log;
-const readline = require("readline")
-const rl = readline.createInterface(process.stdin, process.stdout);
-
+const [showMenu,verifyStock,log,rl] = require("./utils")
 const {data} = require("./data")
 
-const showMenu = () => {
-	log(chalk.blue.underline.bold("Que desea hacer: (ingrese un número)\n"))
-	rl.setPrompt("elija: \n - 1 ver datos completos\n - 2 ver stock de productos\n - 3 Buscar producto\n - 4 calcular totales\n - 5 verificar stock disponible según cantidad\n\no ingrese exit para salir. ");
-	rl.prompt();
-}
 showMenu()
 
 rl.on("line",(lines)=>{
@@ -26,16 +18,14 @@ rl.on("line",(lines)=>{
 							log(chalk.yellow(JSON.stringify(productosFiltrados[producto])))
 						}
 					} else if (answer == "todo"){
-						log(chalk.yellow(JSON.stringify(data)))
+						data.forEach(d => log(chalk.yellow(`${JSON.stringify(d)}\n`)))						
 					} else {
 						throw new Error ("No se encontraron coincidencias")
 					}
 				} catch (error) {
 					log(chalk.red(error.message))
 				}finally{
-					setTimeout(()=>{
-						showMenu()
-					},4000)
+					showMenu(6000)
 				}
 			})
 			
@@ -60,15 +50,22 @@ rl.on("line",(lines)=>{
 			})
 			break;
 		case "4":
-			const total = data.reduce((acc,item)=> acc + item.precio,0)
-			log(chalk.green.underline(total))
+			const total = data.reduce((acc,item)=> acc + (item.precio*item.stock),0)
+			log(chalk.green.underline(`$${total}.-`))
 			showMenu()
 			break;
 		case "5":
 			rl.question("ingrese nombre de producto y cantidad\n",(answer)=>{
-				log(chalk.black.bgCyan(answer.trim()))
+				const respuestas = answer.split(' ')				
+				const isNotEmpty = respuestas.every(answer => answer)
+				isNotEmpty && respuestas.length == 2 ? log(chalk.black.bgBlueBright(verifyStock(...respuestas))) : log(chalk.red("consulta errónea"))
+				showMenu() 
 			})
-			break;
+		break;
+		case "6":
+			console.log("el apartado de las compras")
+			showMenu()
+		break;
 		case "exit":
 			console.log("Nos veremos pronto");
 			process.exit(0);
@@ -76,5 +73,5 @@ rl.on("line",(lines)=>{
 	}
 })
 rl.on("close",()=>{
-	log(chalk.green("nos fuimos"))
+	log(chalk.green("cerrando programa..."))
 })
