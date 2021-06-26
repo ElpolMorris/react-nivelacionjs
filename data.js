@@ -2,7 +2,7 @@ const data = [
     {
         producto: "manzana",
         precio: 2000,
-        stock: 400,
+        stock: 35,
         tipo:"fruta"
     },
     {
@@ -14,13 +14,13 @@ const data = [
     {
         producto: "limon",
         precio: 3000,
-        stock: 2,
+        stock: 22,
         tipo:"fruta"
     },
     {
         producto: "lechuga",
         precio: 800,
-        stock: 5,
+        stock: 25,
         tipo:"verdura"
     },
     {

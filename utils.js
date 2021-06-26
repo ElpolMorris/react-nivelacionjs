@@ -1,3 +1,4 @@
+const { rejects } = require("assert");
 const chalk = require("chalk");
 const log = console.log;
 const readline = require("readline")
@@ -11,20 +12,44 @@ const showMenu = (time = 3000) => {
     },time)
 }
 
-const verifyStock = (...rest)=>{
+const verifyStockOnly = (data,...rest)=>{
 	const [product,stockQuery] = rest
 	const [productFiltered] = data.filter(({producto}) => producto == product )
 
 	if(!productFiltered){
-		return `El producto "${product}" no se encuentra en el inventario`
+		console.log(`El producto "${product}" no se encuentra en el inventario`)
+		return false
 	}
-	if(Number(productFiltered?.stock ?? 0) - Number(stockQuery) > 0) {
-		//productFiltered.stock - Number(stockQuery)
-		return `Hay stock, ${JSON.stringify(productFiltered.stock)} unidades.` 
+	if(Number(productFiltered?.stock ?? 0) - Number(stockQuery) >= 0) {
+		console.log(`Hay stock, ${JSON.stringify(productFiltered.stock)} unidades.` )
+		return true 
 	}
 	else  {
-		return "no queda stock para esa venta"
+		console.log("no queda stock para esa venta")
+		return false
 	}
 }
-
-module.exports = [showMenu,verifyStock,log,rl]
+const getData = async (data) => {
+	return new Promise((resolve,reject)=>{
+		setTimeout(() => {
+			resolve(data)
+		}, 2000);
+	})
+	
+}
+const doSelling = (responseUser, db)=>{
+	const [product,stockQuery] = responseUser 
+	db.map(d => {
+		d.originalPrice = d.precio
+		if(d.producto === product){
+			d.stock -=  stockQuery
+			if(d.stock < 15){
+				d.precio = d.originalPrice * 1.15
+			}	
+			return d		
+		}
+		return d
+	})
+	console.log(db)
+}
+module.exports = [showMenu,verifyStockOnly,log,rl,getData,doSelling]
